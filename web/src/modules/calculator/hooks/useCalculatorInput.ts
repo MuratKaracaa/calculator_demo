@@ -3,7 +3,7 @@ import {
   type OutputItemProps,
 } from "@/calculator/components/output-display/outputDisplay.types";
 import { useSubmitExpression } from "@/calculator/hooks/useSubmitExpression";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export const disabledByLabel: Record<string, Array<string>> = {
   "(": ["+", "x", "/", "^", "%", ")", "submit", "."],
