@@ -48,6 +48,8 @@ export const useCalculatorInput = () => {
     disabledItems.add(".");
   }
 
+  const isKeypadDisabled = outputs.length === 15;
+
   const handleKeyClick = useCallback((value: string, displayValue: string) => {
     setOutputs((prev) => {
       const newList = [...prev];
@@ -87,5 +89,5 @@ export const useCalculatorInput = () => {
     });
   }, []);
 
-  return { outputs, handleKeyClick, disabledItems };
+  return { outputs, handleKeyClick, disabledItems, isKeypadDisabled };
 };

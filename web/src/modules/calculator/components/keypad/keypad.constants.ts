@@ -6,6 +6,7 @@ import {
 export const keypadLayout: (Omit<KeyButtonProps, "onClick"> & {
   displayValue: string;
   value: string;
+  alwaysActive?: boolean;
 })[][] = [
   [
     {
@@ -13,12 +14,14 @@ export const keypadLayout: (Omit<KeyButtonProps, "onClick"> & {
       label: "C",
       displayValue: "C",
       value: "clear",
+      alwaysActive: true,
     },
     {
       type: KeyButtonType.OPERATOR,
       label: "⌫",
       displayValue: "⌫",
       value: "backspace",
+      alwaysActive: true,
     },
     { type: KeyButtonType.OPERATOR, label: "%", displayValue: "%", value: "%" },
     { type: KeyButtonType.OPERATOR, label: "(", displayValue: "(", value: "(" },
