@@ -2,7 +2,7 @@ package calculator
 
 import (
 	"net/http"
-	"server/cmd/api/shared"
+	"server/internal/shared"
 )
 
 type handler struct {

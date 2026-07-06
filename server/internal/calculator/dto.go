@@ -1,6 +1,6 @@
 package calculator
 
-import "server/cmd/api/shared"
+import "server/internal/shared"
 
 type calculationRequest struct {
 	Expression string `json:"expression" validate:"required,calculation_expression"`

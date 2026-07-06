@@ -1,7 +1,7 @@
 package calculator
 
 import (
-	"server/cmd/api/shared"
+	"server/internal/shared"
 	"testing"
 )
 

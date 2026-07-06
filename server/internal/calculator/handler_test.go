@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"server/cmd/api/shared"
+	"server/internal/shared"
 	"testing"
 )
 

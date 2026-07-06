@@ -1,15 +1,19 @@
 package main
 
-import "log"
+import (
+	"log"
+	"server/internal/app"
+)
+
 
 func main() {
-	cfg := config{
-		addr: ":8080",
+	cfg := app.Config{
+		Addr: ":8080",
 	}
 
-	app := &application{
-		cfg: cfg,
+	app := &app.Application{
+		Cfg: cfg,
 	}
 
-	log.Fatal(app.run())
+	log.Fatal(app.Run())
 }
