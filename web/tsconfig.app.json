@@ -19,8 +19,12 @@
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "@/calculator/*": ["./src/modules/calculator/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["./src/**/*"]
 }

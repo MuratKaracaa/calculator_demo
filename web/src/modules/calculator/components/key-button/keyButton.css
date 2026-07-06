@@ -1,0 +1,41 @@
+.key-button-wrapper {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: none;
+  outline: none;
+  background: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.key-button-empty {
+  width: 56px;
+  height: 56px;
+
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.key-button-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.key-button-wrapper:active {
+  opacity: 0.5;
+  transform: scale(0.97);
+}
+
+.label {
+  transition:
+    opacity 0.15s ease,
+    transform 0.1s ease;
+}

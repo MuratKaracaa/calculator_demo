@@ -1,0 +1,7 @@
+.output-display-wrapper {
+  display: flex;
+  padding: 8px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}

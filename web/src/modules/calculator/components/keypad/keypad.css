@@ -1,0 +1,12 @@
+.keypad-wrapper {
+  display: flex;
+  padding: 8px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keypad-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
