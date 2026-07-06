@@ -1,0 +1,8 @@
+.calculator-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 8px;
+  border-width: 1px;
+  border: 1px solid black;
+}

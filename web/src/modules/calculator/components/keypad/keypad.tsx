@@ -4,7 +4,7 @@ import type { FC } from "react";
 import "@/calculator/components/keypad/keypad.css";
 import { KeyButton } from "@/calculator/components/key-button/keyButton";
 
-export const KeyPad: FC<KeypadProps> = ({ onKeyClick }) => {
+export const KeyPad: FC<KeypadProps> = ({ onKeyClick, disabledItems }) => {
   return (
     <div className="keypad-wrapper">
       {keypadLayout.map((row) => (
@@ -13,8 +13,8 @@ export const KeyPad: FC<KeypadProps> = ({ onKeyClick }) => {
             <KeyButton
               type={item.type}
               label={item.label}
-              value={item.value}
-              onClick={() => onKeyClick(item.value)}
+              onClick={() => onKeyClick(item.value, item.displayValue)}
+              disabled={disabledItems?.has(item.value)}
             />
           ))}
         </div>

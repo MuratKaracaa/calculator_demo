@@ -1,3 +1,4 @@
 export interface KeypadProps {
-  onKeyClick: (value: string) => void;
+  onKeyClick: (value: string, displayValue: string) => void;
+  disabledItems?: Set<string>;
 }

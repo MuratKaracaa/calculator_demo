@@ -1,7 +1,12 @@
 .output-display-wrapper {
-  display: flex;
+  display: inline-flex;
+  flex: 1;
   padding: 8px;
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
+}
+
+.output-display-item-invalid {
+  color: red;
 }

@@ -24,7 +24,7 @@
   background: none;
 }
 
-.key-button-wrapper:hover {
+.key-button-wrapper:not(:disabled):hover {
   background-color: rgba(0, 0, 0, 0.08);
   cursor: pointer;
 }
@@ -32,6 +32,10 @@
 .key-button-wrapper:active {
   opacity: 0.5;
   transform: scale(0.97);
+}
+
+.key-button-wrapper:disabled {
+  opacity: 0.5;
 }
 
 .label {

@@ -8,16 +8,16 @@ import "@/calculator/components/key-button/keyButton.css";
 export const KeyButton: FC<KeyButtonProps> = ({
   label,
   onClick,
-  value,
   type,
+  disabled,
 }) => {
-  const handleClick = () => [onClick(value)];
   return (
     <button
+      disabled={disabled}
       className={
         type === KeyButtonType.EMPTY ? "key-button-empty" : "key-button-wrapper"
       }
-      onClick={handleClick}
+      onClick={onClick}
     >
       <span className="text-header-4 label">{label}</span>
     </button>

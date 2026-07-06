@@ -5,6 +5,7 @@ export enum OutputState {
 
 export interface OutputItemProps {
   label: string;
+  value: string;
   state: OutputState;
 }
 

@@ -7,6 +7,6 @@ export enum KeyButtonType {
 export interface KeyButtonProps {
   type: KeyButtonType;
   label: string;
-  value: string;
-  onClick: (value: string) => void;
+  onClick: () => void;
+  disabled?: boolean;
 }

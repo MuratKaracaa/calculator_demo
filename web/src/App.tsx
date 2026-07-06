@@ -1,8 +1,7 @@
-import { KeyPad } from "@/calculator/components/keypad/keypad";
-import { OutputDisplay } from "@/calculator/components/output-display/outputDisplay";
+import { Calculator } from "@/calculator/calculator";
 
 function App() {
-  return <OutputDisplay />;
+  return <Calculator />;
 }
 
 export default App;
