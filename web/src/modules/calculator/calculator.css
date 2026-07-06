@@ -6,3 +6,13 @@
   border-width: 1px;
   border: 1px solid black;
 }
+
+.calculator-error {
+  color: red;
+}
+
+.calculator-outer-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+}

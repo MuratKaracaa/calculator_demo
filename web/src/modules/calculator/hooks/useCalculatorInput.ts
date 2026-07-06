@@ -25,7 +25,8 @@ export const disabledByLabel: Record<string, Array<string>> = {
   "-": ["+", "x", "/", "^", "%", ")", ".", "submit"],
 
   ".": [".", "submit", "(", ")", "%", "s", "^", "x", "+", "-"],
-  "0": ["+", ".", "submit", "%", "/", "x", "^", ")", "0"],
+  empty: ["+", ".", "submit", "%", "/", "x", "^", ")", "0", "("],
+  "0": ["(", "s"],
   "1": ["(", "s"],
   "2": ["(", "s"],
   "3": ["(", "s"],
@@ -46,11 +47,13 @@ export const useCalculatorInput = () => {
     { label: "0", state: OutputState.DEFAULT, value: "0" },
   ]);
 
+  const [error, setError] = useState("");
   const isWritingDecimal = useRef(false);
 
-  const disabledItems = new Set(
-    disabledByLabel[outputs[outputs.length - 1].label],
-  );
+  const disabledItems =
+    outputs.length === 1
+      ? new Set(disabledByLabel["empty"])
+      : new Set(disabledByLabel[outputs[outputs.length - 1].label]);
 
   const openedParanthesisCount = useRef(0);
 
@@ -71,6 +74,9 @@ export const useCalculatorInput = () => {
   const handleSubmit = async () => {
     const expression = outputs.map((item) => item.value).join("");
     const response = await submitExpression({ expression });
+    if (response.error) {
+      setError("Calculation failed: " + response.error);
+    }
     const stringified = response.result.toFixed(2);
     const newOutPuts = stringified.split("").map((digit) => ({
       label: digit,
@@ -81,6 +87,7 @@ export const useCalculatorInput = () => {
   };
 
   const handleKeyClick = (value: string, displayValue: string) => {
+    setError("");
     if (value === "submit") {
       handleSubmit();
     } else {
@@ -158,5 +165,6 @@ export const useCalculatorInput = () => {
     disabledItems,
     isKeypadDisabled,
     isLoading,
+    error,
   };
 };

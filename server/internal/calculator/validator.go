@@ -3,6 +3,7 @@ package calculator
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -14,6 +15,25 @@ func isZeroLiteral(numStr string) bool {
 		}
 	}
 	return true
+}
+
+func validateNumberLiteral(token string) error {
+	if token == "." {
+		return fmt.Errorf("invalid number format")
+	}
+
+	dotCount := 0
+	for _, c := range token {
+		if c == '.' {
+			dotCount++
+			if dotCount > 1 {
+				return fmt.Errorf("invalid number format")
+			}
+		}
+	}
+
+	_, err := strconv.ParseFloat(token, 64)
+	return err
 }
 
 func validateExpression(expression string) error {
@@ -34,7 +54,9 @@ func validateExpression(expression string) error {
 	var prev rune
 	hasPrev := false
 
-	for i, char := range expression {
+	for i := 0; i < len(expression); i++ {
+		char := rune(expression[i])
+
 		isDigit := unicode.IsDigit(char)
 		isDot := char == '.'
 
@@ -72,16 +94,20 @@ func validateExpression(expression string) error {
 				if i == len(expression)-1 {
 					return fmt.Errorf("dangling operator '-' at position %d", i)
 				}
+
 				nextChar := rune(expression[i+1])
 				if !unicode.IsDigit(nextChar) && nextChar != '(' && nextChar != 's' {
 					return fmt.Errorf("invalid character after unary minus at position %d", i+1)
 				}
+
+				prev, hasPrev = char, true
 				continue
 			}
 
 			if !hasPrev || prev == '(' {
 				return fmt.Errorf("operator %q cannot follow '(' or be at start", char)
 			}
+
 			if char != '-' && binaryOperators[string(prev)] {
 				return fmt.Errorf("operator %q cannot immediately follow operator %q", char, prev)
 			}
@@ -89,9 +115,12 @@ func validateExpression(expression string) error {
 			if char == '/' {
 				j := i + 1
 				start := j
-				for j < len(expression) && (unicode.IsDigit(rune(expression[j])) || expression[j] == '.') {
+
+				for j < len(expression) &&
+					(unicode.IsDigit(rune(expression[j])) || expression[j] == '.') {
 					j++
 				}
+
 				if start != j && isZeroLiteral(expression[start:j]) {
 					return fmt.Errorf("division by zero at position %d", i)
 				}
@@ -101,9 +130,11 @@ func validateExpression(expression string) error {
 			if !hasPrev {
 				return fmt.Errorf("'%%' cannot be at start of expression at position %d", i)
 			}
+
 			if !unicode.IsDigit(prev) && prev != ')' {
 				return fmt.Errorf("'%%' must follow a number or ')' at position %d", i)
 			}
+
 			if i+1 < len(expression) {
 				nextChar := rune(expression[i+1])
 				if unicode.IsDigit(nextChar) || nextChar == '.' {
@@ -115,10 +146,12 @@ func validateExpression(expression string) error {
 			if i == len(expression)-1 {
 				return fmt.Errorf("incomplete sqrt function at position %d", i)
 			}
+
 			nextChar := rune(expression[i+1])
 			if !unicode.IsDigit(nextChar) && nextChar != '(' {
 				return fmt.Errorf("sqrt must be followed by number or '(' at position %d", i+1)
 			}
+
 			if hasPrev && (unicode.IsDigit(prev) || prev == ')' || prev == '%') {
 				return fmt.Errorf("missing operator before 's' at position %d", i)
 			}
@@ -127,8 +160,26 @@ func validateExpression(expression string) error {
 			if hasPrev && prev == ')' {
 				return fmt.Errorf("missing operator between ')' and number at position %d", i)
 			}
+
 			if hasPrev && prev == '%' {
 				return fmt.Errorf("invalid character after '%%' at position %d", i)
+			}
+
+			if !hasPrev || (!unicode.IsDigit(prev) && prev != '.') {
+				start := i
+				j := i
+
+				for j < len(expression) &&
+					(unicode.IsDigit(rune(expression[j])) || expression[j] == '.') {
+					j++
+				}
+
+				if err := validateNumberLiteral(expression[start:j]); err != nil {
+					return fmt.Errorf("%w at position %d", err, start)
+				}
+
+				i = j - 1
+				char = rune(expression[j-1])
 			}
 
 		default:
@@ -139,7 +190,10 @@ func validateExpression(expression string) error {
 	}
 
 	if len(parenthesisStack) > 0 {
-		return fmt.Errorf("unbalanced parenthesis: %d unclosed '(' remaining", len(parenthesisStack))
+		return fmt.Errorf(
+			"unbalanced parenthesis: %d unclosed '(' remaining",
+			len(parenthesisStack),
+		)
 	}
 
 	return nil
