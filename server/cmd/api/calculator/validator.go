@@ -7,19 +7,6 @@ import (
 	"unicode"
 )
 
-var binaryOperators = map[rune]bool{
-	'+': true,
-	'-': true,
-	'x': true,
-	'/': true,
-	'^': true,
-}
-
-var postfixUnaryOperators = map[rune]bool{
-	's': true,
-	'%': true,
-}
-
 func isZeroLiteral(numStr string) bool {
 	for _, c := range numStr {
 		if c != '0' && c != '.' {
@@ -30,7 +17,6 @@ func isZeroLiteral(numStr string) bool {
 }
 
 func validateExpression(expression string) error {
-
 	if expression == "" {
 		return errors.New("expression cannot be empty")
 	}
@@ -39,69 +25,111 @@ func validateExpression(expression string) error {
 		return errors.New("expression cannot contain whitespace")
 	}
 
-	runes := []rune(expression)
-	parenStack := make([]int, 0)
+	lastChar := string(expression[len(expression)-1])
+	if binaryOperators[lastChar] {
+		return fmt.Errorf("expression cannot end with operator '%s'", lastChar)
+	}
 
+	parenthesisStack := make([]int, 0)
 	var prev rune
 	hasPrev := false
 
-	for i, char := range runes {
+	for i, char := range expression {
 		isDigit := unicode.IsDigit(char)
 		isDot := char == '.'
-		isBinary := binaryOperators[char]
-		isPostfixUnary := postfixUnaryOperators[char]
 
 		switch {
 		case char == '(':
-			parenStack = append(parenStack, i)
-
-			if hasPrev && (unicode.IsDigit(prev) || prev == ')' || postfixUnaryOperators[prev]) {
+			if hasPrev && (unicode.IsDigit(prev) || prev == ')' || prev == '%') {
 				return fmt.Errorf("missing operator before '(' at position %d", i)
 			}
+			parenthesisStack = append(parenthesisStack, i)
 
 		case char == ')':
-			if len(parenStack) == 0 {
+			if len(parenthesisStack) == 0 {
 				return fmt.Errorf("unmatched ')' at position %d", i)
 			}
 
-			openIndex := parenStack[len(parenStack)-1]
-			parenStack = parenStack[:len(parenStack)-1]
+			openIndex := parenthesisStack[len(parenthesisStack)-1]
+			parenthesisStack = parenthesisStack[:len(parenthesisStack)-1]
 
 			if i == openIndex+1 {
 				return fmt.Errorf("empty parentheses at position %d", openIndex)
 			}
-			if binaryOperators[prev] {
+			if binaryOperators[string(prev)] {
 				return fmt.Errorf("dangling operator %q before ')' at position %d", prev, i)
 			}
 
-		case isBinary:
-			if char == '-' && (!hasPrev || prev == '(' || binaryOperators[prev]) {
-				break
+			if i+1 < len(expression) {
+				nextChar := rune(expression[i+1])
+				if unicode.IsDigit(nextChar) || nextChar == 's' || nextChar == '(' {
+					return fmt.Errorf("missing operator between ')' and '%c' at position %d", nextChar, i+1)
+				}
 			}
+
+		case binaryOperators[string(char)]:
+			if char == '-' && (!hasPrev || prev == '(') {
+				if i == len(expression)-1 {
+					return fmt.Errorf("dangling operator '-' at position %d", i)
+				}
+				nextChar := rune(expression[i+1])
+				if !unicode.IsDigit(nextChar) && nextChar != '(' && nextChar != 's' {
+					return fmt.Errorf("invalid character after unary minus at position %d", i+1)
+				}
+				continue
+			}
+
 			if !hasPrev || prev == '(' {
 				return fmt.Errorf("operator %q cannot follow '(' or be at start", char)
 			}
-			if binaryOperators[prev] {
+			if char != '-' && binaryOperators[string(prev)] {
 				return fmt.Errorf("operator %q cannot immediately follow operator %q", char, prev)
 			}
 
 			if char == '/' {
 				j := i + 1
 				start := j
-				for j < len(runes) && (unicode.IsDigit(runes[j]) || runes[j] == '.') {
+				for j < len(expression) && (unicode.IsDigit(rune(expression[j])) || expression[j] == '.') {
 					j++
 				}
-				if start != j && isZeroLiteral(string(runes[start:j])) {
+				if start != j && isZeroLiteral(expression[start:j]) {
 					return fmt.Errorf("division by zero at position %d", i)
 				}
 			}
 
-		case isPostfixUnary:
-			if !hasPrev || !(unicode.IsDigit(prev) || prev == '.' || prev == ')' || postfixUnaryOperators[prev]) {
-				return fmt.Errorf("operator %q must follow a number", char)
+		case char == '%':
+			if !hasPrev {
+				return fmt.Errorf("'%%' cannot be at start of expression at position %d", i)
+			}
+			if !unicode.IsDigit(prev) && prev != ')' {
+				return fmt.Errorf("'%%' must follow a number or ')' at position %d", i)
+			}
+			if i+1 < len(expression) {
+				nextChar := rune(expression[i+1])
+				if unicode.IsDigit(nextChar) || nextChar == '.' {
+					return fmt.Errorf("invalid character after '%%' at position %d", i+1)
+				}
+			}
+
+		case char == 's':
+			if i == len(expression)-1 {
+				return fmt.Errorf("incomplete sqrt function at position %d", i)
+			}
+			nextChar := rune(expression[i+1])
+			if !unicode.IsDigit(nextChar) && nextChar != '(' {
+				return fmt.Errorf("sqrt must be followed by number or '(' at position %d", i+1)
+			}
+			if hasPrev && (unicode.IsDigit(prev) || prev == ')' || prev == '%') {
+				return fmt.Errorf("missing operator before 's' at position %d", i)
 			}
 
 		case isDigit || isDot:
+			if hasPrev && prev == ')' {
+				return fmt.Errorf("missing operator between ')' and number at position %d", i)
+			}
+			if hasPrev && prev == '%' {
+				return fmt.Errorf("invalid character after '%%' at position %d", i)
+			}
 
 		default:
 			return fmt.Errorf("invalid character %q at position %d", char, i)
@@ -110,13 +138,8 @@ func validateExpression(expression string) error {
 		prev, hasPrev = char, true
 	}
 
-	if len(parenStack) > 0 {
-		return fmt.Errorf("unbalanced parenthesis: %d unclosed '(' remaining", len(parenStack))
-	}
-
-	lastChar := runes[len(runes)-1]
-	if binaryOperators[lastChar] || lastChar == '(' {
-		return fmt.Errorf("expression cannot end with %q", lastChar)
+	if len(parenthesisStack) > 0 {
+		return fmt.Errorf("unbalanced parenthesis: %d unclosed '(' remaining", len(parenthesisStack))
 	}
 
 	return nil

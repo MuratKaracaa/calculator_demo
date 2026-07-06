@@ -11,28 +11,35 @@ type Token struct {
 	Value string
 }
 
-var operators map[rune]bool = map[rune]bool{
-	'+': true,
-	'-': true,
-	'x': true,
-	'/': true,
-	'(': true,
-	')': true,
-	's': true,
-	'^': true,
-	'%': true,
+var binaryOperators map[string]bool = map[string]bool{
+	"+": true,
+	"-": true,
+	"x": true,
+	"/": true,
+	"^": true,
 }
 
-var operatorPriority map[rune]int = map[rune]int{
-	'+': 1,
-	'-': 1,
-	'x': 2,
-	'/': 2,
-	'(': 0,
-	')': 0,
-	's': 3,
-	'^': 3,
-	'%': 3,
+var paranthesis map[string]bool = map[string]bool{
+	"(": true,
+	")": true,
+}
+
+var unaryOperators map[string]bool = map[string]bool{
+	"s": true,
+	"%": true,
+}
+
+var operatorPriority map[string]int = map[string]int{
+	"+":  1,
+	"-":  1,
+	"x":  2,
+	"/":  2,
+	"(":  0,
+	")":  0,
+	"s":  5,
+	"^":  3,
+	"%":  5,
+	"u-": 4,
 }
 
 func infix(expression string) []Token {
@@ -41,9 +48,8 @@ func infix(expression string) []Token {
 
 	currentNumber := ""
 
-	for _, char := range expression {
-
-		if !operators[char] {
+	for i, char := range expression {
+		if !binaryOperators[string(char)] && !unaryOperators[string(char)] && !paranthesis[string(char)] {
 			currentNumber += string(char)
 			continue
 		}
@@ -77,7 +83,27 @@ func infix(expression string) []Token {
 			}
 
 		default:
-			currentPriority := operatorPriority[char]
+
+			var isUnaryMinus bool
+
+			if i == 0 && char == '-' {
+				isUnaryMinus = true
+			} else if i != 0 && char == '-' {
+				prev := string(expression[i-1])
+				if binaryOperators[prev] || prev == "(" {
+					isUnaryMinus = true
+				}
+			}
+
+			if isUnaryMinus {
+				stack = append(stack, Token{
+					Type:  "operator",
+					Value: "u-",
+				})
+				continue
+			}
+
+			currentPriority := operatorPriority[string(char)]
 
 			for len(stack) > 0 {
 				topOperator := stack[len(stack)-1]
@@ -86,9 +112,10 @@ func infix(expression string) []Token {
 					break
 				}
 
-				topOperatorPriority := operatorPriority[rune(topOperator.Value[0])]
+				topOperatorPriority := operatorPriority[topOperator.Value]
 
-				if topOperatorPriority >= currentPriority {
+				if topOperatorPriority > currentPriority ||
+					(topOperatorPriority == currentPriority && char != '^') {
 					queue = append(queue, topOperator)
 					stack = stack[:len(stack)-1]
 				} else {
@@ -153,6 +180,17 @@ func postfix(queue []Token) (float64, error) {
 					stack = append(stack, Token{Type: "value", Value: newValueAsStr})
 				}
 
+			case "u-":
+				topOfStack := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				parsedValue, err := strconv.ParseFloat(topOfStack.Value, 64)
+
+				if err == nil {
+					newValue := parsedValue * -1
+					newValueAsStr := strconv.FormatFloat(newValue, 'f', -1, 64)
+					stack = append(stack, Token{Type: "value", Value: newValueAsStr})
+				}
+
 			default:
 
 				rightElement := stack[len(stack)-1]
@@ -204,6 +242,10 @@ func postfix(queue []Token) (float64, error) {
 }
 
 func shuntYardEvaluate(expression string) (float64, error) {
+	validationError := validateExpression(expression)
+	if validationError != nil {
+		return 0, validationError
+	}
 	parsedQueue := infix(expression)
 	calculatedValue, err := postfix(parsedQueue)
 	if err != nil {

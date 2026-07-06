@@ -1,11 +1,13 @@
 package calculator
 
+import "server/cmd/api/shared"
+
 type calculationRequest struct {
-	Expression string `json:"expression"`
+	Expression string `json:"expression" validate:"required,calculation_expression"`
 }
 
 func (calReq calculationRequest) Validate() error {
-	return validateExpression(calReq.Expression)
+	return shared.ValidateInstance.Struct(calReq)
 }
 
 type calculationResponse struct {
