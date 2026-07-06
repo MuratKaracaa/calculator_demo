@@ -5,11 +5,16 @@ import type { FC } from "react";
 import "@/calculator/calculator.css";
 
 export const Calculator: FC = () => {
-  const { handleKeyClick, outputs, disabledItems, isKeypadDisabled } =
-    useCalculatorInput();
+  const {
+    handleKeyClick,
+    outputs,
+    disabledItems,
+    isKeypadDisabled,
+    isLoading,
+  } = useCalculatorInput();
   return (
     <div className="calculator-wrapper">
-      <OutputDisplay outputList={outputs} />
+      <OutputDisplay outputList={outputs} isLoading={isLoading} />
       <KeyPad
         onKeyClick={handleKeyClick}
         disabledItems={disabledItems}

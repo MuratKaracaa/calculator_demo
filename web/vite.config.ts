@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@/calculator": path.resolve(__dirname, "./src/modules/calculator"),
+      "@/core": path.resolve(__dirname, "./src/modules/core"),
     },
   },
 });

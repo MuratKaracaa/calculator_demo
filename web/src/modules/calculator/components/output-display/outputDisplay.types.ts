@@ -11,4 +11,5 @@ export interface OutputItemProps {
 
 export interface OutputDisplayProps {
   outputList: Array<OutputItemProps>;
+  isLoading?: boolean;
 }

@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": true,
 
     "paths": {
-      "@/calculator/*": ["./src/modules/calculator/*"]
+      "@/calculator/*": ["./src/modules/calculator/*"],
+      "@/core/*": ["./src/modules/core/*"]
     }
   },
   "include": ["./src/**/*"]
