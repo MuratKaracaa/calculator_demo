@@ -25,7 +25,7 @@ export const disabledByLabel: Record<string, Array<string>> = {
   "-": ["+", "x", "/", "^", "%", ")", ".", "submit"],
 
   ".": [".", "submit", "(", ")", "%", "s", "^", "x", "+", "-"],
-  empty: ["+", ".", "submit", "%", "/", "x", "^", ")", "0", "("],
+  empty: ["+", ".", "submit", "%", "/", "x", "^", ")", "0"],
   "0": ["(", "s"],
   "1": ["(", "s"],
   "2": ["(", "s"],
@@ -51,7 +51,7 @@ export const useCalculatorInput = () => {
   const isWritingDecimal = useRef(false);
 
   const disabledItems =
-    outputs.length === 1
+    outputs.length === 1 && outputs[0].label == "0" 
       ? new Set(disabledByLabel["empty"])
       : new Set(disabledByLabel[outputs[outputs.length - 1].label]);
 

@@ -17,7 +17,7 @@ export const KeyPad: FC<KeypadProps> = ({
             <KeyButton
               type={item.type}
               label={item.label}
-              onClick={() => onKeyClick(item.value, item.displayValue)}
+              onClick={() => onKeyClick(item.value, item.label)}
               disabled={
                 !item.alwaysActive &&
                 (disabled || disabledItems?.has(item.value))
