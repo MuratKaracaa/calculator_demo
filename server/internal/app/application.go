@@ -6,8 +6,6 @@ import (
 	"server/internal/shared"
 )
 
-
-
 type Config struct {
 	Addr string
 }
@@ -34,7 +32,16 @@ func enableCORS(next http.Handler) http.Handler {
 func (app *Application) Run() error {
 	mux := http.NewServeMux()
 	shared.InitValidator()
-	calculator.Register(mux)
+
+	modules := []shared.Module{
+		calculator.NewModule(),
+	}
+
+	for _, m := range modules {
+		m.RegisterValidations()
+		m.RegisterRoutes(mux)
+	}
+
 	server := &http.Server{
 		Addr:    app.Cfg.Addr,
 		Handler: enableCORS(mux),

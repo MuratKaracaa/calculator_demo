@@ -11,6 +11,7 @@ import (
 
 func setup() {
 	shared.InitValidator()
+	NewModule().RegisterValidations()
 }
 
 func TestHandlerCalculateSuccess(t *testing.T) {
