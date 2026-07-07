@@ -236,7 +236,22 @@ func validateExpression(expression string) error {
 	return nil
 }
 
-
+// infix converts a mathematical expression written in infix notation
+// (the normal human-readable format, e.g. "3+4x2") into postfix notation
+// (Reverse Polish Notation, e.g. "3 4 2 x +").
+//
+// The conversion is based on the Shunting Yard algorithm:
+//   - Numbers are immediately added to the output queue.
+//   - Operators are temporarily stored in a stack.
+//   - Operators with higher precedence are moved from the stack to the queue
+//     before lower-precedence operators are added.
+//   - Parentheses control the order of evaluation by temporarily blocking
+//     operators inside them.
+//
+// The function also detects unary minus ("-5" or "3x-2") and stores it as
+// a separate operator ("u-") so it can be evaluated correctly later.
+// The returned slice represents the expression in postfix form, which is
+// easier for a computer to evaluate using a stack.
 func infix(expression string) []Token {
 	queue := make([]Token, 0)
 	stack := make([]Token, 0)
@@ -339,6 +354,20 @@ func infix(expression string) []Token {
 	return queue
 }
 
+// postfix evaluates a postfix expression produced by the infix function.
+//
+// Postfix notation removes the need for operator precedence rules because
+// operators appear after their operands. The function evaluates the expression
+// using a stack:
+//
+//   - Value tokens are pushed onto the stack.
+//   - Unary operators (sqrt, percentage, unary minus) remove one value from the
+//     stack, apply the operation, and push the result back.
+//   - Binary operators (+, -, x, /, ^) remove the two most recent values,
+//     perform the calculation, and push the result back.
+//
+// At the end of the evaluation, the stack contains a single value, which is
+// the final result of the mathematical expression.
 func postfix(queue []Token) (float64, error) {
 	stack := make([]Token, 0)
 
