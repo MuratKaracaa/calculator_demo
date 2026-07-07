@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"server/internal/app"
 )
@@ -14,6 +15,8 @@ func main() {
 	app := &app.Application{
 		Cfg: cfg,
 	}
+
+	fmt.Println("Server started on port :8080")
 
 	log.Fatal(app.Run())
 }
